@@ -39,10 +39,12 @@ function expressPlugin(): Plugin {
     apply: "serve",
     configureServer(server) {
       // Only load server in development to avoid crypto issues
-      import("./server").then(({ createServer }) => {
-        const app = createServer();
-        server.middlewares.use(app);
-      }).catch(console.error);
+      import("./server")
+        .then(({ createServer }) => {
+          const app = createServer();
+          server.middlewares.use(app);
+        })
+        .catch(console.error);
     },
   };
 }

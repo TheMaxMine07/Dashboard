@@ -1,41 +1,40 @@
 #!/usr/bin/env node
 
 // Simple build script that avoids crypto issues
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
+import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
 
-console.log('🚀 Building TMMNets Dashboard (crypto-free)...');
+console.log("🚀 Building TMMNets Dashboard (crypto-free)...");
 
 try {
   // Clean dist directory
-  if (fs.existsSync('dist')) {
-    fs.rmSync('dist', { recursive: true, force: true });
+  if (fs.existsSync("dist")) {
+    fs.rmSync("dist", { recursive: true, force: true });
   }
-  fs.mkdirSync('dist', { recursive: true });
-  fs.mkdirSync('dist/spa', { recursive: true });
-  fs.mkdirSync('dist/server', { recursive: true });
+  fs.mkdirSync("dist", { recursive: true });
+  fs.mkdirSync("dist/spa", { recursive: true });
+  fs.mkdirSync("dist/server", { recursive: true });
 
-  console.log('📦 Building frontend...');
+  console.log("📦 Building frontend...");
   // Build frontend with minimal options
-  process.env.NODE_ENV = 'production';
-  execSync('npx vite build --mode production', { 
-    stdio: 'inherit',
-    env: { ...process.env, VITE_DISABLE_CRYPTO: 'true' }
+  process.env.NODE_ENV = "production";
+  execSync("npx vite build --mode production", {
+    stdio: "inherit",
+    env: { ...process.env, VITE_DISABLE_CRYPTO: "true" },
   });
 
-  console.log('🔧 Building server...');
+  console.log("🔧 Building server...");
   // Build server
-  execSync('npx vite build --config vite.config.server.ts', { 
-    stdio: 'inherit' 
+  execSync("npx vite build --config vite.config.server.ts", {
+    stdio: "inherit",
   });
 
-  console.log('✅ Build completed successfully!');
-  console.log('\n📁 Output:');
-  console.log('Frontend: dist/spa/');
-  console.log('Backend:  dist/server/');
-  
+  console.log("✅ Build completed successfully!");
+  console.log("\n📁 Output:");
+  console.log("Frontend: dist/spa/");
+  console.log("Backend:  dist/server/");
 } catch (error) {
-  console.error('❌ Build failed:', error.message);
+  console.error("❌ Build failed:", error.message);
   process.exit(1);
 }
