@@ -51,6 +51,7 @@ export default function Index() {
   const [serverStatuses, setServerStatuses] = useState<ServerStatus[]>([]);
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   const [dashboards] = useState<Dashboard[]>([
