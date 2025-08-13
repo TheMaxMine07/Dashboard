@@ -15,9 +15,7 @@ import {
   Wifi,
   WifiOff,
   RefreshCw,
-  Clock,
-  Cpu,
-  HardDrive
+  Clock
 } from "lucide-react";
 
 interface ServerStatus {
