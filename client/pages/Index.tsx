@@ -2,18 +2,22 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Server, 
-  Activity, 
-  Globe, 
-  Shield, 
-  Database, 
-  BarChart3, 
-  Users, 
+import {
+  Server,
+  Activity,
+  Globe,
+  Shield,
+  Database,
+  BarChart3,
+  Users,
   Settings,
   ExternalLink,
   Wifi,
-  WifiOff
+  WifiOff,
+  RefreshCw,
+  Clock,
+  Cpu,
+  HardDrive
 } from "lucide-react";
 
 interface ServerStatus {
@@ -21,6 +25,9 @@ interface ServerStatus {
   status: "online" | "offline" | "maintenance";
   uptime: string;
   lastChecked: string;
+  responseTime?: number;
+  cpuUsage?: number;
+  memoryUsage?: number;
 }
 
 interface Dashboard {
@@ -33,27 +40,18 @@ interface Dashboard {
   category: string;
 }
 
+interface SystemInfo {
+  totalServers: number;
+  onlineServers: number;
+  offlineServers: number;
+  lastUpdate: string;
+}
+
 export default function Index() {
-  const [serverStatuses, setServerStatuses] = useState<ServerStatus[]>([
-    {
-      name: "Main Server",
-      status: "online",
-      uptime: "99.9%",
-      lastChecked: "2 minutes ago"
-    },
-    {
-      name: "Database Server",
-      status: "online", 
-      uptime: "99.7%",
-      lastChecked: "1 minute ago"
-    },
-    {
-      name: "API Gateway",
-      status: "online",
-      uptime: "99.8%",
-      lastChecked: "30 seconds ago"
-    }
-  ]);
+  const [serverStatuses, setServerStatuses] = useState<ServerStatus[]>([]);
+  const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   const [dashboards] = useState<Dashboard[]>([
     {
