@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { getServerStatus, pingServer } from "./routes/status";
+import { getProxmoxStatus, pingProxmoxNode } from "./routes/proxmox";
 
 export function createServer() {
   const app = express();
