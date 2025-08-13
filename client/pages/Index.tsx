@@ -237,8 +237,29 @@ export default function Index() {
             <Activity className="h-6 w-6 text-primary" />
             <h2 className="text-xl font-semibold text-foreground">Server Status</h2>
           </div>
+          {error && (
+            <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+              <p className="text-destructive text-sm">{error}</p>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {serverStatuses.map((server, index) => (
+            {isLoading && serverStatuses.length === 0 ? (
+              Array.from({ length: 3 }).map((_, index) => (
+                <Card key={index} className="border-border">
+                  <CardHeader className="pb-3">
+                    <div className="h-5 bg-muted rounded animate-pulse"></div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="h-4 bg-muted rounded animate-pulse"></div>
+                      <div className="h-4 bg-muted rounded animate-pulse"></div>
+                      <div className="h-4 bg-muted rounded animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              serverStatuses.map((server, index) => (
               <Card key={index} className="border-border hover:border-primary/30 transition-colors">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center justify-between text-base">
@@ -294,7 +315,8 @@ export default function Index() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              ))
+            )}
           </div>
         </section>
 
