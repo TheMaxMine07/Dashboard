@@ -4,6 +4,11 @@ import path from "path";
 import { createServer } from "./server";
 import { webcrypto } from "crypto";
 
+// Polyfill crypto for Node.js
+if (!globalThis.crypto) {
+  globalThis.crypto = webcrypto as any;
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
