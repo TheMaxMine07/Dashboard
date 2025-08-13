@@ -267,6 +267,14 @@ export default function Index() {
               <p className="text-destructive text-sm">{error}</p>
             </div>
           )}
+          {!(systemInfo as any)?.clusterHost && !error && (
+            <div className="mb-4 p-4 bg-info/10 border border-info/20 rounded-lg">
+              <p className="text-info text-sm">
+                <strong>Demo Mode:</strong> Configure Proxmox environment variables to see real server data.
+                Add PROXMOX_CLUSTER_HOST, PROXMOX_USER, and PROXMOX_PASSWORD to your .env file.
+              </p>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {isLoading && serverStatuses.length === 0 ? (
               Array.from({ length: 3 }).map((_, index) => (
