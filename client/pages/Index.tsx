@@ -233,7 +233,7 @@ export default function Index() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {serverStatuses.map((server, index) => (
-              <Card key={index} className="border-border">
+              <Card key={index} className="border-border hover:border-primary/30 transition-colors">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center justify-between text-base">
                     <span className="text-foreground">{server.name}</span>
@@ -250,15 +250,41 @@ export default function Index() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Uptime:</span>
                       <span className="font-medium text-success">{server.uptime}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Last Checked:</span>
-                      <span className="text-foreground">{server.lastChecked}</span>
+                      <span className="text-foreground">
+                        {formatLastChecked(server.lastChecked)}
+                      </span>
                     </div>
+                    {server.responseTime && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Response Time:</span>
+                        <span className="text-foreground">{server.responseTime}ms</span>
+                      </div>
+                    )}
+                    {server.cpuUsage && server.memoryUsage && (
+                      <div className="pt-2 space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center space-x-1">
+                            <Cpu className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-muted-foreground">CPU:</span>
+                          </div>
+                          <span className="text-foreground">{server.cpuUsage}%</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center space-x-1">
+                            <HardDrive className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-muted-foreground">Memory:</span>
+                          </div>
+                          <span className="text-foreground">{server.memoryUsage}%</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
