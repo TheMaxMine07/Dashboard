@@ -294,24 +294,6 @@ export default function Index() {
                         <span className="text-foreground">{server.responseTime}ms</span>
                       </div>
                     )}
-                    {server.cpuUsage && server.memoryUsage && (
-                      <div className="pt-2 space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center space-x-1">
-                            <Cpu className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-muted-foreground">CPU:</span>
-                          </div>
-                          <span className="text-foreground">{server.cpuUsage}%</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center space-x-1">
-                            <HardDrive className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-muted-foreground">Memory:</span>
-                          </div>
-                          <span className="text-foreground">{server.memoryUsage}%</span>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </CardContent>
               </Card>
