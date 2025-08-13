@@ -20,5 +20,9 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
+  // Server status monitoring routes
+  app.get("/api/status", getServerStatus);
+  app.get("/api/ping/:serverName", pingServer);
+
   return app;
 }
