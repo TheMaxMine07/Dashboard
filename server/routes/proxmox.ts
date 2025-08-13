@@ -240,28 +240,34 @@ export const getProxmoxStatus: RequestHandler = async (req, res) => {
   }
 };
 
-// Einzelnen Proxmox-Node pingen
+// Proxmox-Cluster oder spezifischen Node pingen
 export const pingProxmoxNode: RequestHandler = async (req, res) => {
   const { serverName } = req.params;
-  
-  try {
-    // Finde den entsprechenden Server
-    const config = proxmoxServers.find(s => s.host === serverName);
-    if (!config) {
-      return res.status(404).json({ error: 'Server not found' });
-    }
 
-    const api = new ProxmoxAPI(config);
+  try {
+    const api = new ProxmoxAPI(proxmoxCluster);
     const start = Date.now();
-    
-    await api.getNodes();
+
+    // Teste Cluster-Verbindung
+    const nodes = await api.getNodes();
     const responseTime = Date.now() - start;
+
+    // Prüfe ob der spezifische Node existiert
+    const targetNode = nodes.find(node => node.node === serverName);
+
+    if (serverName !== 'cluster' && !targetNode) {
+      return res.status(404).json({
+        error: 'Node not found in cluster',
+        availableNodes: nodes.map(n => n.node)
+      });
+    }
 
     res.json({
       serverName,
-      status: 'online',
+      status: targetNode ? targetNode.status : 'cluster-online',
       responseTime,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      clusterNodes: nodes.length
     });
   } catch (error) {
     res.json({
