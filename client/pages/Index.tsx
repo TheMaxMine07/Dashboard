@@ -190,9 +190,34 @@ export default function Index() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              {systemInfo && (
+                <div className="hidden md:flex items-center space-x-4 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-muted-foreground">Servers:</span>
+                    <span className="text-success font-medium">{systemInfo.onlineServers}</span>
+                    <span className="text-muted-foreground">/</span>
+                    <span className="text-foreground">{systemInfo.totalServers}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">
+                      {formatLastChecked(lastRefresh.toISOString())}
+                    </span>
+                  </div>
+                </div>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchServerStatus}
+                disabled={isLoading}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
               <div className="flex items-center space-x-2">
                 <div className="h-2 w-2 bg-online rounded-full animate-pulse"></div>
-                <span className="text-sm text-muted-foreground">System Online</span>
+                <span className="text-sm text-muted-foreground">Control Panel Active</span>
               </div>
             </div>
           </div>
