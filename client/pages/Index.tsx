@@ -139,18 +139,36 @@ export default function Index() {
     try {
       setIsLoading(true);
       setError(null);
-      // Versuche zuerst Proxmox API, fallback zu simulierten Daten
-      const response = await fetch("/api/proxmox/status");
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+
+      // Versuche zuerst Proxmox API
+      try {
+        const proxmoxResponse = await fetch("/api/proxmox/status");
+        if (proxmoxResponse.ok) {
+          const data = await proxmoxResponse.json();
+          if (data.servers && data.servers.length > 0) {
+            setServerStatuses(data.servers);
+            setSystemInfo(data.systemInfo);
+            setLastRefresh(new Date());
+            return;
+          }
+        }
+      } catch (proxmoxError) {
+        console.log("Proxmox API not available, falling back to simulated data");
       }
-      const data = await response.json();
+
+      // Fallback zu simulierten Daten
+      const fallbackResponse = await fetch("/api/status");
+      if (!fallbackResponse.ok) {
+        throw new Error(`HTTP error! status: ${fallbackResponse.status}`);
+      }
+      const data = await fallbackResponse.json();
       setServerStatuses(data.servers);
       setSystemInfo(data.systemInfo);
       setLastRefresh(new Date());
+
     } catch (error) {
-      console.error("Error fetching Proxmox status:", error);
-      setError("Failed to fetch Proxmox status. Check server configuration.");
+      console.error("Error fetching server status:", error);
+      setError("Failed to fetch server status. Please check your configuration.");
     } finally {
       setIsLoading(false);
     }
