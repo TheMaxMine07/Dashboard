@@ -136,15 +136,36 @@ export default function Index() {
     }
   };
 
-  useEffect(() => {
-    // Simulate real-time status updates
-    const interval = setInterval(() => {
-      setServerStatuses(prev => prev.map(server => ({
-        ...server,
-        lastChecked: "Just now"
-      })));
-    }, 30000);
+  const fetchServerStatus = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/status");
+      const data = await response.json();
+      setServerStatuses(data.servers);
+      setSystemInfo(data.systemInfo);
+      setLastRefresh(new Date());
+    } catch (error) {
+      console.error("Error fetching server status:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const formatLastChecked = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return "Just now";
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  };
+
+  useEffect(() => {
+    fetchServerStatus();
+
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchServerStatus, 30000);
     return () => clearInterval(interval);
   }, []);
 
