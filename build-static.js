@@ -393,21 +393,23 @@ app.listen(PORT, () => {
     type: "module",
     main: "index.js",
     dependencies: {
-      express: "^5.1.0"
+      express: "^5.1.0",
     },
     scripts: {
-      start: "node index.js"
-    }
+      start: "node index.js",
+    },
   };
 
-  fs.writeFileSync("dist/server/package.json", JSON.stringify(serverPackageJson, null, 2));
+  fs.writeFileSync(
+    "dist/server/package.json",
+    JSON.stringify(serverPackageJson, null, 2),
+  );
 
   console.log("✅ Static build completed successfully!");
   console.log("\n📁 Output:");
   console.log("Frontend: dist/spa/index.html (self-contained)");
   console.log("Server:   dist/server/index.js (optional)");
   console.log("\n🚀 Deployment ready!");
-
 } catch (error) {
   console.error("❌ Build failed:", error.message);
   process.exit(1);
