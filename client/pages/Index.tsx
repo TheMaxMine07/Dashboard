@@ -278,11 +278,11 @@ export default function Index() {
               <p className="text-destructive text-sm">{error}</p>
             </div>
           )}
-          {!(systemInfo as any)?.clusterHost && !error && (
+          {!error && (
             <div className="mb-4 p-4 bg-info/10 border border-info/20 rounded-lg">
               <p className="text-info text-sm">
-                <strong>Demo Mode:</strong> Configure Proxmox environment variables to see real server data.
-                Add PROXMOX_CLUSTER_HOST, PROXMOX_USER, and PROXMOX_PASSWORD to your .env file.
+                <strong>TMMNets Live Dashboard:</strong> Showing real-time status of your server infrastructure.
+                Data refreshes automatically every 30 seconds.
               </p>
             </div>
           )}
