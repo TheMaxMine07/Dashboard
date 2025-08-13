@@ -257,9 +257,7 @@ export default function Index() {
               </Button>
               <div className="flex items-center space-x-2">
                 <div className="h-2 w-2 bg-online rounded-full animate-pulse"></div>
-                <span className="text-sm text-muted-foreground">
-                  {(systemInfo as any)?.clusterHost ? 'Proxmox Connected' : 'Demo Mode'}
-                </span>
+                <span className="text-sm text-muted-foreground">TMMNets Live</span>
               </div>
             </div>
           </div>
