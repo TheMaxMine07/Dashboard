@@ -25,5 +25,9 @@ export function createServer() {
   app.get("/api/status", getServerStatus);
   app.get("/api/ping/:serverName", pingServer);
 
+  // Proxmox API routes
+  app.get("/api/proxmox/status", getProxmoxStatus);
+  app.get("/api/proxmox/ping/:serverName", pingProxmoxNode);
+
   return app;
 }
