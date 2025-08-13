@@ -16,7 +16,10 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: "dist/spa",
   },
-  plugins: [react(), mode === "development" ? expressPlugin() : undefined].filter(Boolean),
+  plugins: [
+    react(),
+    mode === "development" ? expressPlugin() : undefined,
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
@@ -24,7 +27,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   define: {
-    global: 'globalThis',
+    global: "globalThis",
   },
 }));
 
