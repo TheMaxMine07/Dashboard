@@ -14,6 +14,7 @@
     "dev": "vite",
     "build": "npm run build:client && npm run build:server",
     "build:simple": "node build-simple.js",
+    "build:static": "node build-static.js",
     "build:client": "vite build",
     "build:server": "vite build --config vite.config.server.ts",
     "start": "node dist/server/node-build.mjs",
