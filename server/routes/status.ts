@@ -47,11 +47,15 @@ export const getServerStatus: RequestHandler = (req, res) => {
       responseTime: Math.floor(Math.random() * 40) + 20, // 20-60ms
       cpuUsage: Math.floor(Math.random() * 20) + 10, // 10-30%
       memoryUsage: Math.floor(Math.random() * 30) + 25, // 25-55%
-    }
+    },
   ];
 
-  const onlineServers = servers.filter(server => server.status === "online").length;
-  const offlineServers = servers.filter(server => server.status === "offline").length;
+  const onlineServers = servers.filter(
+    (server) => server.status === "online",
+  ).length;
+  const offlineServers = servers.filter(
+    (server) => server.status === "offline",
+  ).length;
 
   const response: ServerStatusResponse = {
     servers,
@@ -59,8 +63,8 @@ export const getServerStatus: RequestHandler = (req, res) => {
       totalServers: servers.length,
       onlineServers,
       offlineServers,
-      lastUpdate: new Date().toISOString()
-    }
+      lastUpdate: new Date().toISOString(),
+    },
   };
 
   res.json(response);
@@ -68,7 +72,7 @@ export const getServerStatus: RequestHandler = (req, res) => {
 
 export const pingServer: RequestHandler = (req, res) => {
   const { serverName } = req.params;
-  
+
   // Simulate server ping
   const pingTime = Math.floor(Math.random() * 100) + 10; // 10-110ms
   const isOnline = Math.random() > 0.05; // 95% chance of being online
@@ -77,6 +81,6 @@ export const pingServer: RequestHandler = (req, res) => {
     serverName,
     status: isOnline ? "online" : "offline",
     responseTime: isOnline ? pingTime : null,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };

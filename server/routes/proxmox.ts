@@ -35,7 +35,11 @@ class ProxmoxAPI {
   }
 
   // Proxmox API Request Helper
-  private async makeRequest(method: string, path: string, data?: any): Promise<any> {
+  private async makeRequest(
+    method: string,
+    path: string,
+    data?: any,
+  ): Promise<any> {
     return new Promise((resolve, reject) => {
       const options = {
         hostname: this.config.host,
@@ -44,16 +48,16 @@ class ProxmoxAPI {
         method: method,
         rejectUnauthorized: false, // Für selbstsignierte Zertifikate
         headers: {
-          'Content-Type': 'application/json',
-          ...(this.ticket && { 'Cookie': `PVEAuthCookie=${this.ticket}` }),
-          ...(this.csrfToken && { 'CSRFPreventionToken': this.csrfToken })
-        }
+          "Content-Type": "application/json",
+          ...(this.ticket && { Cookie: `PVEAuthCookie=${this.ticket}` }),
+          ...(this.csrfToken && { CSRFPreventionToken: this.csrfToken }),
+        },
       };
 
       const req = https.request(options, (res) => {
-        let responseData = '';
-        res.on('data', (chunk) => responseData += chunk);
-        res.on('end', () => {
+        let responseData = "";
+        res.on("data", (chunk) => (responseData += chunk));
+        res.on("end", () => {
           try {
             const parsed = JSON.parse(responseData);
             resolve(parsed);
@@ -63,12 +67,12 @@ class ProxmoxAPI {
         });
       });
 
-      req.on('error', reject);
-      
+      req.on("error", reject);
+
       if (data) {
         req.write(JSON.stringify(data));
       }
-      
+
       req.end();
     });
   }
@@ -78,16 +82,20 @@ class ProxmoxAPI {
     try {
       const authData = {
         username: `${this.config.username}@${this.config.realm}`,
-        password: this.config.password
+        password: this.config.password,
       };
 
-      const response = await this.makeRequest('POST', '/api2/json/access/ticket', authData);
-      
+      const response = await this.makeRequest(
+        "POST",
+        "/api2/json/access/ticket",
+        authData,
+      );
+
       if (response.data) {
         this.ticket = response.data.ticket;
         this.csrfToken = response.data.CSRFPreventionToken;
       } else {
-        throw new Error('Authentication failed');
+        throw new Error("Authentication failed");
       }
     } catch (error) {
       throw new Error(`Proxmox authentication failed: ${error}`);
@@ -98,11 +106,11 @@ class ProxmoxAPI {
   async getNodes(): Promise<ProxmoxNode[]> {
     try {
       if (!this.ticket) await this.authenticate();
-      
-      const response = await this.makeRequest('GET', '/api2/json/nodes');
+
+      const response = await this.makeRequest("GET", "/api2/json/nodes");
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching Proxmox nodes:', error);
+      console.error("Error fetching Proxmox nodes:", error);
       throw error;
     }
   }
@@ -111,8 +119,11 @@ class ProxmoxAPI {
   async getNodeStatus(nodeName: string): Promise<any> {
     try {
       if (!this.ticket) await this.authenticate();
-      
-      const response = await this.makeRequest('GET', `/api2/json/nodes/${nodeName}/status`);
+
+      const response = await this.makeRequest(
+        "GET",
+        `/api2/json/nodes/${nodeName}/status`,
+      );
       return response.data;
     } catch (error) {
       console.error(`Error fetching status for node ${nodeName}:`, error);
@@ -124,8 +135,11 @@ class ProxmoxAPI {
   async getVMs(nodeName: string): Promise<any[]> {
     try {
       if (!this.ticket) await this.authenticate();
-      
-      const response = await this.makeRequest('GET', `/api2/json/nodes/${nodeName}/qemu`);
+
+      const response = await this.makeRequest(
+        "GET",
+        `/api2/json/nodes/${nodeName}/qemu`,
+      );
       return response.data || [];
     } catch (error) {
       console.error(`Error fetching VMs for node ${nodeName}:`, error);
@@ -136,22 +150,28 @@ class ProxmoxAPI {
 
 // Proxmox-Cluster Konfiguration (eine IP für alle 3 Nodes)
 const proxmoxCluster: ProxmoxConfig = {
-  host: process.env.PROXMOX_CLUSTER_HOST || '192.168.1.100',
-  port: parseInt(process.env.PROXMOX_PORT || '8006'),
-  username: process.env.PROXMOX_USER || 'root',
-  password: process.env.PROXMOX_PASSWORD || 'your-password',
-  realm: process.env.PROXMOX_REALM || 'pam'
+  host: process.env.PROXMOX_CLUSTER_HOST || "192.168.1.100",
+  port: parseInt(process.env.PROXMOX_PORT || "8006"),
+  username: process.env.PROXMOX_USER || "root",
+  password: process.env.PROXMOX_PASSWORD || "your-password",
+  realm: process.env.PROXMOX_REALM || "pam",
 };
 
 // API Endpoint für Server-Status via Proxmox Cluster
 export const getProxmoxStatus: RequestHandler = async (req, res) => {
   try {
     // Prüfe ob Proxmox konfiguriert ist
-    if (!proxmoxCluster.host || proxmoxCluster.host === '192.168.1.100' || !proxmoxCluster.password || proxmoxCluster.password === 'your-password') {
+    if (
+      !proxmoxCluster.host ||
+      proxmoxCluster.host === "192.168.1.100" ||
+      !proxmoxCluster.password ||
+      proxmoxCluster.password === "your-password"
+    ) {
       return res.status(503).json({
-        error: 'Proxmox not configured',
-        message: 'Please configure PROXMOX_CLUSTER_HOST, PROXMOX_USER, and PROXMOX_PASSWORD in your environment variables',
-        configured: false
+        error: "Proxmox not configured",
+        message:
+          "Please configure PROXMOX_CLUSTER_HOST, PROXMOX_USER, and PROXMOX_PASSWORD in your environment variables",
+        configured: false,
       });
     }
 
@@ -164,8 +184,8 @@ export const getProxmoxStatus: RequestHandler = async (req, res) => {
       const nodes = await api.getNodes();
 
       for (const node of nodes) {
-        const status = node.status === 'online' ? 'online' : 'offline';
-        if (status === 'online') totalOnline++;
+        const status = node.status === "online" ? "online" : "offline";
+        if (status === "online") totalOnline++;
 
         // Detaillierte Node-Informationen abrufen
         let nodeDetails = null;
@@ -177,13 +197,20 @@ export const getProxmoxStatus: RequestHandler = async (req, res) => {
 
         // CPU und Memory Usage berechnen
         const cpuUsage = Math.round((node.cpu || 0) * 100);
-        const memoryUsage = Math.round(((node.mem || 0) / (node.maxmem || 1)) * 100);
-        const diskUsage = Math.round(((node.disk || 0) / (node.maxdisk || 1)) * 100);
+        const memoryUsage = Math.round(
+          ((node.mem || 0) / (node.maxmem || 1)) * 100,
+        );
+        const diskUsage = Math.round(
+          ((node.disk || 0) / (node.maxdisk || 1)) * 100,
+        );
 
         // Uptime in Tagen berechnen
         const uptimeDays = node.uptime ? Math.floor(node.uptime / 86400) : 0;
-        const uptimeHours = node.uptime ? Math.floor((node.uptime % 86400) / 3600) : 0;
-        const uptimeString = uptimeDays > 0 ? `${uptimeDays}d ${uptimeHours}h` : `${uptimeHours}h`;
+        const uptimeHours = node.uptime
+          ? Math.floor((node.uptime % 86400) / 3600)
+          : 0;
+        const uptimeString =
+          uptimeDays > 0 ? `${uptimeDays}d ${uptimeHours}h` : `${uptimeHours}h`;
 
         servers.push({
           name: node.node,
@@ -195,36 +222,35 @@ export const getProxmoxStatus: RequestHandler = async (req, res) => {
           memoryUsage: memoryUsage,
           diskUsage: diskUsage,
           nodeDetails: {
-            type: node.type || 'node',
-            level: node.level || '',
-            id: node.id || node.node
-          }
+            type: node.type || "node",
+            level: node.level || "",
+            id: node.id || node.node,
+          },
         });
       }
 
       // Falls keine Nodes gefunden wurden
       if (servers.length === 0) {
         servers.push({
-          name: 'Cluster Information',
-          status: 'online' as const,
-          uptime: 'Connected',
+          name: "Cluster Information",
+          status: "online" as const,
+          uptime: "Connected",
           lastChecked: new Date().toISOString(),
           responseTime: 15,
-          message: 'Connected to Proxmox cluster but no nodes visible'
+          message: "Connected to Proxmox cluster but no nodes visible",
         });
         totalOnline = 1;
       }
-
     } catch (error) {
       // Falls der Proxmox-Cluster nicht erreichbar ist
-      console.error('Proxmox cluster connection failed:', error);
+      console.error("Proxmox cluster connection failed:", error);
       servers.push({
         name: `Cluster ${proxmoxCluster.host}`,
-        status: 'offline' as const,
-        uptime: '0%',
+        status: "offline" as const,
+        uptime: "0%",
         lastChecked: new Date().toISOString(),
         responseTime: null,
-        error: `Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        error: `Connection failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       });
     }
 
@@ -235,16 +261,16 @@ export const getProxmoxStatus: RequestHandler = async (req, res) => {
         onlineServers: totalOnline,
         offlineServers: servers.length - totalOnline,
         lastUpdate: new Date().toISOString(),
-        clusterHost: proxmoxCluster.host
-      }
+        clusterHost: proxmoxCluster.host,
+      },
     };
 
     res.json(response);
   } catch (error) {
-    console.error('Error in getProxmoxStatus:', error);
+    console.error("Error in getProxmoxStatus:", error);
     res.status(500).json({
-      error: 'Failed to fetch Proxmox cluster status',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      error: "Failed to fetch Proxmox cluster status",
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };
@@ -262,29 +288,29 @@ export const pingProxmoxNode: RequestHandler = async (req, res) => {
     const responseTime = Date.now() - start;
 
     // Prüfe ob der spezifische Node existiert
-    const targetNode = nodes.find(node => node.node === serverName);
+    const targetNode = nodes.find((node) => node.node === serverName);
 
-    if (serverName !== 'cluster' && !targetNode) {
+    if (serverName !== "cluster" && !targetNode) {
       return res.status(404).json({
-        error: 'Node not found in cluster',
-        availableNodes: nodes.map(n => n.node)
+        error: "Node not found in cluster",
+        availableNodes: nodes.map((n) => n.node),
       });
     }
 
     res.json({
       serverName,
-      status: targetNode ? targetNode.status : 'cluster-online',
+      status: targetNode ? targetNode.status : "cluster-online",
       responseTime,
       timestamp: new Date().toISOString(),
-      clusterNodes: nodes.length
+      clusterNodes: nodes.length,
     });
   } catch (error) {
     res.json({
       serverName,
-      status: 'offline',
+      status: "offline",
       responseTime: null,
       timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };
