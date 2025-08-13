@@ -134,24 +134,14 @@ class ProxmoxAPI {
   }
 }
 
-// Proxmox-Konfigurationen für deine Server
-const proxmoxServers: ProxmoxConfig[] = [
-  {
-    host: process.env.PROXMOX_HOST_1 || 'proxmox1.example.com',
-    port: parseInt(process.env.PROXMOX_PORT || '8006'),
-    username: process.env.PROXMOX_USER || 'root',
-    password: process.env.PROXMOX_PASSWORD || 'password',
-    realm: process.env.PROXMOX_REALM || 'pam'
-  },
-  // Weitere Proxmox-Server hier hinzufügen
-  // {
-  //   host: 'proxmox2.example.com',
-  //   port: 8006,
-  //   username: 'root',
-  //   password: 'password',
-  //   realm: 'pam'
-  // }
-];
+// Proxmox-Cluster Konfiguration (eine IP für alle 3 Nodes)
+const proxmoxCluster: ProxmoxConfig = {
+  host: process.env.PROXMOX_CLUSTER_HOST || '192.168.1.100',
+  port: parseInt(process.env.PROXMOX_PORT || '8006'),
+  username: process.env.PROXMOX_USER || 'root',
+  password: process.env.PROXMOX_PASSWORD || 'your-password',
+  realm: process.env.PROXMOX_REALM || 'pam'
+};
 
 // API Endpoint für Server-Status via Proxmox
 export const getProxmoxStatus: RequestHandler = async (req, res) => {
