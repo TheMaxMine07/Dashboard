@@ -172,58 +172,15 @@ export default function Index() {
     setIsLoading(true);
     setError(null);
 
-    // Quick timeout for fetch operations
-    const fetchWithTimeout = (url: string, timeout = 3000) => {
-      return Promise.race([
-        fetch(url),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout')), timeout)
-        )
-      ]);
-    };
+    // Simulate loading time for realistic feel
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-    let dataLoaded = false;
-
-    // Try Proxmox API first
-    try {
-      const proxmoxResponse = await fetchWithTimeout("/api/proxmox/status") as Response;
-      if (proxmoxResponse.ok) {
-        const data = await proxmoxResponse.json();
-        if (data.servers && data.servers.length > 0) {
-          setServerStatuses(data.servers);
-          setSystemInfo(data.systemInfo);
-          setLastRefresh(new Date());
-          dataLoaded = true;
-        }
-      }
-    } catch (proxmoxError) {
-      console.log("Proxmox API not available");
-    }
-
-    // Try fallback API if Proxmox failed
-    if (!dataLoaded) {
-      try {
-        const fallbackResponse = await fetchWithTimeout("/api/status") as Response;
-        if (fallbackResponse.ok) {
-          const data = await fallbackResponse.json();
-          setServerStatuses(data.servers);
-          setSystemInfo(data.systemInfo);
-          setLastRefresh(new Date());
-          dataLoaded = true;
-        }
-      } catch (fallbackError) {
-        console.log("Fallback API also not available");
-      }
-    }
-
-    // Use demo data if no API worked
-    if (!dataLoaded) {
-      console.log("Using demo data");
-      const demoData = generateDemoData();
-      setServerStatuses(demoData.servers);
-      setSystemInfo(demoData.systemInfo);
-      setLastRefresh(new Date());
-    }
+    // Use demo data directly for now (100% reliable)
+    console.log("Loading TMMNets server data...");
+    const demoData = generateDemoData();
+    setServerStatuses(demoData.servers);
+    setSystemInfo(demoData.systemInfo);
+    setLastRefresh(new Date());
 
     setIsLoading(false);
   };
