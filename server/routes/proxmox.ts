@@ -146,6 +146,15 @@ const proxmoxCluster: ProxmoxConfig = {
 // API Endpoint für Server-Status via Proxmox Cluster
 export const getProxmoxStatus: RequestHandler = async (req, res) => {
   try {
+    // Prüfe ob Proxmox konfiguriert ist
+    if (!proxmoxCluster.host || proxmoxCluster.host === '192.168.1.100' || !proxmoxCluster.password || proxmoxCluster.password === 'your-password') {
+      return res.status(503).json({
+        error: 'Proxmox not configured',
+        message: 'Please configure PROXMOX_CLUSTER_HOST, PROXMOX_USER, and PROXMOX_PASSWORD in your environment variables',
+        configured: false
+      });
+    }
+
     const servers = [];
     let totalOnline = 0;
     const api = new ProxmoxAPI(proxmoxCluster);
