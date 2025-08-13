@@ -139,7 +139,8 @@ export default function Index() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch("/api/status");
+      // Versuche zuerst Proxmox API, fallback zu simulierten Daten
+      const response = await fetch("/api/proxmox/status");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -148,8 +149,8 @@ export default function Index() {
       setSystemInfo(data.systemInfo);
       setLastRefresh(new Date());
     } catch (error) {
-      console.error("Error fetching server status:", error);
-      setError("Failed to fetch server status. Please try again.");
+      console.error("Error fetching Proxmox status:", error);
+      setError("Failed to fetch Proxmox status. Check server configuration.");
     } finally {
       setIsLoading(false);
     }
