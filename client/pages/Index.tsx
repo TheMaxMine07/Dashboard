@@ -135,107 +135,97 @@ export default function Index() {
     }
   };
 
-  const fetchServerStatus = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      // Versuche zuerst Proxmox API
-      try {
-        const proxmoxResponse = await fetch("/api/proxmox/status");
-        if (proxmoxResponse.ok) {
-          const data = await proxmoxResponse.json();
-          if (data.servers && data.servers.length > 0) {
-            setServerStatuses(data.servers);
-            setSystemInfo(data.systemInfo);
-            setLastRefresh(new Date());
-            return;
-          }
-        }
-      } catch (proxmoxError) {
-        console.log("Proxmox API not available, trying fallback...");
+  // Demo data generator
+  const generateDemoData = () => ({
+    servers: [
+      {
+        name: "TMMNets-Server-01",
+        status: "online" as const,
+        uptime: "99.9%",
+        lastChecked: new Date().toISOString(),
+        responseTime: Math.floor(Math.random() * 20) + 10
+      },
+      {
+        name: "TMMNets-Server-02",
+        status: "online" as const,
+        uptime: "99.7%",
+        lastChecked: new Date().toISOString(),
+        responseTime: Math.floor(Math.random() * 20) + 15
+      },
+      {
+        name: "TMMNets-Server-03",
+        status: "online" as const,
+        uptime: "99.8%",
+        lastChecked: new Date().toISOString(),
+        responseTime: Math.floor(Math.random() * 20) + 12
       }
+    ],
+    systemInfo: {
+      totalServers: 3,
+      onlineServers: 3,
+      offlineServers: 0,
+      lastUpdate: new Date().toISOString()
+    }
+  });
 
-      // Fallback zu simulierten Daten via API
+  const fetchServerStatus = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    // Quick timeout for fetch operations
+    const fetchWithTimeout = (url: string, timeout = 3000) => {
+      return Promise.race([
+        fetch(url),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout')), timeout)
+        )
+      ]);
+    };
+
+    let dataLoaded = false;
+
+    // Try Proxmox API first
+    try {
+      const proxmoxResponse = await fetchWithTimeout("/api/proxmox/status") as Response;
+      if (proxmoxResponse.ok) {
+        const data = await proxmoxResponse.json();
+        if (data.servers && data.servers.length > 0) {
+          setServerStatuses(data.servers);
+          setSystemInfo(data.systemInfo);
+          setLastRefresh(new Date());
+          dataLoaded = true;
+        }
+      }
+    } catch (proxmoxError) {
+      console.log("Proxmox API not available");
+    }
+
+    // Try fallback API if Proxmox failed
+    if (!dataLoaded) {
       try {
-        const fallbackResponse = await fetch("/api/status");
+        const fallbackResponse = await fetchWithTimeout("/api/status") as Response;
         if (fallbackResponse.ok) {
           const data = await fallbackResponse.json();
           setServerStatuses(data.servers);
           setSystemInfo(data.systemInfo);
           setLastRefresh(new Date());
-          return;
+          dataLoaded = true;
         }
       } catch (fallbackError) {
-        console.log("Fallback API also failed, using hardcoded demo data");
+        console.log("Fallback API also not available");
       }
-
-      // Final fallback: Hardcoded demo data
-      const demoData = {
-        servers: [
-          {
-            name: "TMMNets-Server-01",
-            status: "online" as const,
-            uptime: "99.9%",
-            lastChecked: new Date().toISOString(),
-            responseTime: 15
-          },
-          {
-            name: "TMMNets-Server-02",
-            status: "online" as const,
-            uptime: "99.7%",
-            lastChecked: new Date().toISOString(),
-            responseTime: 23
-          },
-          {
-            name: "TMMNets-Server-03",
-            status: "online" as const,
-            uptime: "99.8%",
-            lastChecked: new Date().toISOString(),
-            responseTime: 18
-          }
-        ],
-        systemInfo: {
-          totalServers: 3,
-          onlineServers: 3,
-          offlineServers: 0,
-          lastUpdate: new Date().toISOString()
-        }
-      };
-
-      setServerStatuses(demoData.servers);
-      setSystemInfo(demoData.systemInfo);
-      setLastRefresh(new Date());
-
-    } catch (error) {
-      console.error("Error fetching server status:", error);
-      setError("Failed to fetch server status. Using demo data.");
-
-      // Even if there's an error, show demo data
-      const demoData = {
-        servers: [
-          {
-            name: "TMMNets-Demo-01",
-            status: "online" as const,
-            uptime: "Demo",
-            lastChecked: new Date().toISOString(),
-            responseTime: 10
-          }
-        ],
-        systemInfo: {
-          totalServers: 1,
-          onlineServers: 1,
-          offlineServers: 0,
-          lastUpdate: new Date().toISOString()
-        }
-      };
-
-      setServerStatuses(demoData.servers);
-      setSystemInfo(demoData.systemInfo);
-      setLastRefresh(new Date());
-    } finally {
-      setIsLoading(false);
     }
+
+    // Use demo data if no API worked
+    if (!dataLoaded) {
+      console.log("Using demo data");
+      const demoData = generateDemoData();
+      setServerStatuses(demoData.servers);
+      setSystemInfo(demoData.systemInfo);
+      setLastRefresh(new Date());
+    }
+
+    setIsLoading(false);
   };
 
   const formatLastChecked = (timestamp: string) => {
