@@ -198,11 +198,17 @@ export default function Index() {
               {systemInfo && (
                 <div className="hidden md:flex items-center space-x-4 text-sm">
                   <div className="flex items-center space-x-2">
-                    <span className="text-muted-foreground">Servers:</span>
+                    <span className="text-muted-foreground">Nodes:</span>
                     <span className="text-success font-medium">{systemInfo.onlineServers}</span>
                     <span className="text-muted-foreground">/</span>
                     <span className="text-foreground">{systemInfo.totalServers}</span>
                   </div>
+                  {(systemInfo as any).clusterHost && (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-muted-foreground">Cluster:</span>
+                      <span className="text-foreground font-mono text-xs">{(systemInfo as any).clusterHost}</span>
+                    </div>
+                  )}
                   <div className="flex items-center space-x-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">
