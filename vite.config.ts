@@ -1,13 +1,6 @@
 import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { createServer } from "./server";
-import { webcrypto } from "crypto";
-
-// Polyfill crypto for Node.js
-if (!globalThis.crypto) {
-  globalThis.crypto = webcrypto as any;
-}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -21,6 +14,9 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: "dist/spa",
+    rollupOptions: {
+      external: mode === "production" ? [] : ["./server"],
+    },
   },
   plugins: [
     react(),
@@ -36,6 +32,20 @@ export default defineConfig(({ mode }) => ({
     global: "globalThis",
   },
 }));
+
+function expressPlugin(): Plugin {
+  return {
+    name: "express-plugin",
+    apply: "serve",
+    configureServer(server) {
+      // Only load server in development to avoid crypto issues
+      import("./server").then(({ createServer }) => {
+        const app = createServer();
+        server.middlewares.use(app);
+      }).catch(console.error);
+    },
+  };
+}
 
 function expressPlugin(): Plugin {
   return {
