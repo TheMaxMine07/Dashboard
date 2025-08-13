@@ -140,13 +140,18 @@ export default function Index() {
   const fetchServerStatus = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const response = await fetch("/api/status");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       setServerStatuses(data.servers);
       setSystemInfo(data.systemInfo);
       setLastRefresh(new Date());
     } catch (error) {
       console.error("Error fetching server status:", error);
+      setError("Failed to fetch server status. Please try again.");
     } finally {
       setIsLoading(false);
     }
